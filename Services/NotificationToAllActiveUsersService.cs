@@ -34,7 +34,11 @@ public class NotificationToAllActiveUsersService : INotificationToAllActiveUsers
                     Link = notification.Link,
                     Message = notification.Message,
                     Received = DateTime.Now,
-                    Title = notification.Title
+                    Title = notification.Title,
+                    LinkOpenInNewWindow = notification.LinkOpenInNewWindow,
+                    Discriminator = notification.Discriminator,
+                    ScopeKind = notification.ScopeKind,
+                    ScopeId = notification.ScopeId
                 });
             }
 
@@ -69,7 +73,11 @@ public class NotificationToAllActiveUsersService : INotificationToAllActiveUsers
                     Link = notification.Link,
                     Message = notification.Message,
                     Received = DateTime.Now,
-                    Title = notification.Title
+                    Title = notification.Title,
+                    LinkOpenInNewWindow = notification.LinkOpenInNewWindow,
+                    Discriminator = notification.Discriminator,
+                    ScopeKind = notification.ScopeKind,
+                    ScopeId = notification.ScopeId
                 });
             }
 

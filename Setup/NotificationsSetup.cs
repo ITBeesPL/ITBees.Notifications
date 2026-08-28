@@ -21,5 +21,9 @@ public class DbModelBuilder
     public static void Register(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Notification>().HasKey(x => x.Guid);
+        modelBuilder.Entity<Notification>().Property(x => x.Discriminator).HasMaxLength(128);
+        modelBuilder.Entity<Notification>().Property(x => x.ScopeKind).HasMaxLength(64);
+        modelBuilder.Entity<Notification>()
+            .HasIndex(x => new { x.Discriminator, x.ScopeKind, x.ScopeId });
     }
 }

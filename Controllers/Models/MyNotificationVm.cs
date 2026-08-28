@@ -20,6 +20,9 @@ public class MyNotificationVm
         HasBeenRead = x.HasBeenRead;
         HasBeenClicked = x.HasBeenClicked;
         LinkOpenInNewWindow = x.LinkOpenInNewWindow;
+        Discriminator = x.Discriminator;
+        ScopeKind = x.ScopeKind;
+        ScopeId = x.ScopeId;
     }
 
     public Guid Guid { get; set; }
@@ -36,4 +39,7 @@ public class MyNotificationVm
     public bool HasBeenRead { get; set; }
     public bool HasBeenClicked { get; set; }
     public bool LinkOpenInNewWindow { get; set; }
+    public string? Discriminator { get; set; }
+    public string? ScopeKind { get; set; }
+    public Guid? ScopeId { get; set; }
 }

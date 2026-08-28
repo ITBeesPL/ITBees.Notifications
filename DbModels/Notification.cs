@@ -16,4 +16,8 @@ public class Notification
     public UserAccount UserAccount { get; set; }
     public Guid UserAccountGuid { get; set; }
     public bool LinkOpenInNewWindow { get; set; }
+
+    public string? Discriminator { get; set; }
+    public string? ScopeKind { get; set; }
+    public Guid? ScopeId { get; set; }
 }

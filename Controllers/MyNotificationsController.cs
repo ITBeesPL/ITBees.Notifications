@@ -21,8 +21,11 @@ public class MyNotificationsController : RestfulControllerBase<MyNotificationsCo
 
     [HttpGet]
     [Produces(typeof(PaginatedResult<MyNotificationVm>))]
-    public IActionResult Get(bool onlyUnread, int? page, int? pageSize, string? sortColumn, SortOrder? sortOrder)
+    public IActionResult Get(bool onlyUnread, int? page, int? pageSize, string? sortColumn, SortOrder? sortOrder,
+        [FromQuery] string? discriminator = null, [FromQuery] string? scopeKind = null,
+        [FromQuery] Guid? scopeId = null)
     {
-        return ReturnOkResult(() => _notificationsService.GetMyNotifications(onlyUnread, page, pageSize, sortColumn, sortOrder));
+        return ReturnOkResult(() => _notificationsService.GetMyNotifications(onlyUnread, page, pageSize,
+            sortColumn, sortOrder, discriminator, scopeKind, scopeId));
     }
 }
