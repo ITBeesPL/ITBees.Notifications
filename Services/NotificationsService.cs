@@ -21,11 +21,17 @@ public class NotificationsService : INotificationsService
         _notificationsRwRepository = notificationsRwRepository;
     }
 
-    public NotificationsCounterVm GetMyNotificationsCounters()
+    public NotificationsCounterVm GetMyNotificationsCounters() =>
+        GetMyNotificationsCounters(null, null, null);
+
+    public NotificationsCounterVm GetMyNotificationsCounters(string? discriminator, string? scopeKind, Guid? scopeId)
     {
         var cu = _aspCurrentUserService.GetCurrentUser();
-        _notificationsRoRepository.GetDataQueryable(x => x.UserAccountGuid == cu.Guid).Select(x => x);
-        var query = _notificationsRoRepository.GetDataQueryable(x => x.UserAccountGuid == cu.Guid);
+        var query = _notificationsRoRepository.GetDataQueryable(x =>
+            x.UserAccountGuid == cu.Guid &&
+            (discriminator == null || x.Discriminator == discriminator) &&
+            (scopeKind == null || x.ScopeKind == scopeKind) &&
+            (scopeId == null || x.ScopeId == scopeId));
 
         var counts = query
             .GroupBy(x => 1) // Group all notifications into one group
@@ -49,23 +55,22 @@ public class NotificationsService : INotificationsService
 
     public PaginatedResult<MyNotificationVm> GetMyNotifications(bool onlyUnread, int? page, int? pageSize,
         string? sortColumn,
-        SortOrder? sortOrder)
+        SortOrder? sortOrder) =>
+        GetMyNotifications(onlyUnread, page, pageSize, sortColumn, sortOrder, null, null, null);
+
+    public PaginatedResult<MyNotificationVm> GetMyNotifications(bool onlyUnread, int? page, int? pageSize,
+        string? sortColumn, SortOrder? sortOrder, string? discriminator, string? scopeKind, Guid? scopeId)
     {
         var cu = _aspCurrentUserService.GetCurrentUser();
-        if (onlyUnread)
-        {
-            var result = _notificationsRoRepository
-                .GetDataPaginated(x => x.UserAccountGuid == cu.Guid && x.HasBeenRead == false , new SortOptions(page, pageSize, "Received", SortOrder.Descending))
-                .MapTo(x => new MyNotificationVm(x));
-            return result;    
-        }
-        else
-        {
-            var result = _notificationsRoRepository
-                .GetDataPaginated(x => x.UserAccountGuid == cu.Guid , new SortOptions(page, pageSize, "Received", SortOrder.Descending))
-                .MapTo(x => new MyNotificationVm(x));
-            return result;
-        }
+        return _notificationsRoRepository
+            .GetDataPaginated(x =>
+                    x.UserAccountGuid == cu.Guid &&
+                    (!onlyUnread || !x.HasBeenRead) &&
+                    (discriminator == null || x.Discriminator == discriminator) &&
+                    (scopeKind == null || x.ScopeKind == scopeKind) &&
+                    (scopeId == null || x.ScopeId == scopeId),
+                new SortOptions(page, pageSize, "Received", SortOrder.Descending))
+            .MapTo(x => new MyNotificationVm(x));
     }
 
     public MyNotificationVm MarkNotificationAsClicked(MyNotificationClickedUm notificationUm)
@@ -94,27 +99,43 @@ public class NotificationsService : INotificationsService
 
     public void Delete(MyNotificationDeleteDm notificationDeleteDm)
     {
-        _notificationsRwRepository.DeleteData(x=>x.Guid == notificationDeleteDm.Guid);
+        var cu = _aspCurrentUserService.GetCurrentUser();
+        _notificationsRwRepository.DeleteData(x =>
+            x.UserAccountGuid == cu.Guid && x.Guid == notificationDeleteDm.Guid);
     }
 
     public NotificationsCounterVm MarkAllNotyficationsAsRead(
         AllMyNotificationsMarkedAsReadUm notificationsMarkedAsReadUm)
     {
         var cu = _aspCurrentUserService.GetCurrentUser();
-        var result = _notificationsRwRepository.UpdateData(x => x.UserAccountGuid == cu.Guid && x.HasBeenRead ==false,
+        _notificationsRwRepository.UpdateData(x =>
+                x.UserAccountGuid == cu.Guid && !x.HasBeenRead &&
+                (notificationsMarkedAsReadUm.Discriminator == null ||
+                 x.Discriminator == notificationsMarkedAsReadUm.Discriminator) &&
+                (notificationsMarkedAsReadUm.ScopeKind == null ||
+                 x.ScopeKind == notificationsMarkedAsReadUm.ScopeKind) &&
+                (notificationsMarkedAsReadUm.ScopeId == null ||
+                 x.ScopeId == notificationsMarkedAsReadUm.ScopeId),
             x =>
             {
                 x.HasBeenRead = true;
                 x.HasBeenReadDate = DateTime.Now;
             });
         
-        return GetMyNotificationsCounters();
+        return GetMyNotificationsCounters(notificationsMarkedAsReadUm.Discriminator,
+            notificationsMarkedAsReadUm.ScopeKind, notificationsMarkedAsReadUm.ScopeId);
     }
 
-    public void DeleteAllMyNotifications()
+    public void DeleteAllMyNotifications() => DeleteAllMyNotifications(null, null, null);
+
+    public void DeleteAllMyNotifications(string? discriminator, string? scopeKind, Guid? scopeId)
     {
         var cu = _aspCurrentUserService.GetCurrentUser();
         //todo mark as deleted in future if we want to track open rate for notifications
-        _notificationsRwRepository.DeleteData(x => x.UserAccountGuid == cu.Guid);
+        _notificationsRwRepository.DeleteData(x =>
+            x.UserAccountGuid == cu.Guid &&
+            (discriminator == null || x.Discriminator == discriminator) &&
+            (scopeKind == null || x.ScopeKind == scopeKind) &&
+            (scopeId == null || x.ScopeId == scopeId));
     }
 }

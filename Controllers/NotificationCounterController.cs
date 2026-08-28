@@ -20,9 +20,11 @@ namespace ITBees.Notifications.Controllers
 
         [HttpGet]
         [Produces(typeof(NotificationsCounterVm))]
-        public IActionResult Get()
+        public IActionResult Get([FromQuery] string? discriminator = null, [FromQuery] string? scopeKind = null,
+            [FromQuery] Guid? scopeId = null)
         {
-            return ReturnOkResult(() => _notificationsService.GetMyNotificationsCounters());
+            return ReturnOkResult(() =>
+                _notificationsService.GetMyNotificationsCounters(discriminator, scopeKind, scopeId));
         }
     }
 }

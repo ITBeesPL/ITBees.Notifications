@@ -18,8 +18,10 @@ public class DeleteAllMyNotificationsController : RestfulControllerBase<DeleteAl
     }
 
     [HttpDelete]
-    public IActionResult Delete()
+    public IActionResult Delete([FromQuery] string? discriminator = null, [FromQuery] string? scopeKind = null,
+        [FromQuery] Guid? scopeId = null)
     {
-        return ReturnOkResult(() => _notificationsService.DeleteAllMyNotifications());
+        return ReturnOkResult(() =>
+            _notificationsService.DeleteAllMyNotifications(discriminator, scopeKind, scopeId));
     }
 }
