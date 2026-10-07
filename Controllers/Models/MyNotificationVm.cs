@@ -13,7 +13,7 @@ public class MyNotificationVm
     public MyNotificationVm(Notification x)
     {
         Guid = x.Guid;
-        Received = x.Received;
+        Received = DateTime.SpecifyKind(x.Received, DateTimeKind.Utc);
         Title = x.Title;
         Message = x.Message;
         Link = x.Link;
